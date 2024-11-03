@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block title %}
+Équipe
+{% endblock %}
+
+{% block content %}
+
+<form action="https://forge.uclouvain.be/linfo1002-2024-group32/Website" target="_blank">
+<div style="margin: 1.5rem; float:left;">
+<button class="buttonGit">
+    GitLab
+    <i class="fa-brands fa-gitlab"></i>
+  </button>
+</div>
+</form>
+
+<br>
+<br>
+<br>
+
+
+<section class="membre">
+    <h1>Cheffert Théo</h1>
+    <p><B> Théo Cheffert</B>, codeur professionnel depuis <I>1804</I>.</p>
+    <p><U>Email:</U> theo.cheffert@student.uclouvain.be</p>
+    <a href="{{ url_for('static', filename='GIFs/stonks-up-stongs.gif') }}">
+        <img src="{{ url_for('static', filename='Images/TheoCheffert.png') }}" alt="My Photo (an error has occured)"
+        style="width:150px; border-radius: 50%;">
+    </a>
+</section>
+
+<section class="membre">
+    <h1>Lipiec Kacper</h1>
+    <p><U>Email:</U> kacper.lipiec@student.uclouvain.be</p>
+    <a href="{{ url_for('static', filename='GIFs/chancho-hombre-chancho.gif') }}">
+    <img src="{{ url_for('static', filename='Images/KacperLipiec.png') }}" alt="Image 1" width=10% height=10%>
+    </a>
+</section>
+
+<section class="membre">
+    <h1>Schrondweiler Owen</h1>
+    <p>Je m'appelle <B>Owen</B>, mais tu peux m'appeller Oppa.</p>
+    <p><U>Email:</U> owen.schrondweiler@student.uclouvain.be</p>
+    <a href="{{ url_for('static', filename='GIFs/gigachad-chad.gif') }}">
+    <img src="{{ url_for('static', filename='Images/OwenSchrondweiler.webp') }}" alt="C'est moi"
+        style="width:150px; height:150px; border-radius:50%">
+    </a>
+</section>
+
+<section class="membre">
+    <h1>Yu Wenjie</h1>
+    <p><U>Email:</U> wenjie.yu@student.uclouvain.be</p>
+    <a href="{{ url_for('static', filename='GIFs/chiquichico.gif') }}">
+    <img src="{{ url_for('static', filename='Images/WenjieYu.jpeg') }}" alt="Image 2"
+        style="width:150px; height:150px; border-radius:50%">
+    </a>
+</section>
+
+{% endblock %}

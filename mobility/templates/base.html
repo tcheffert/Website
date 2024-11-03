@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>{% block title %}{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="shortcut icon" href="#">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.bundle.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+  <div class="header"
+    style="height: 120px; background:#009879; background-image: linear-gradient(to bottom left, #0ddbb2, #009879);">
+    <p style="margin: 0; text-align:center"><span class="fancy">Mobility</span></p>
+
+  </div>
+  <div class="topnav">
+      <ul style="margin:0 ; padding:0;">
+        <div class="icon-centering">
+        <a href="/"><i class="fa-solid fa-house"></i> Accueil</a>
+        <a href="/stats"><i class="fa-solid fa-chart-simple"></i> Statistiques</a>
+        <a href="/requests"><i class="fa-solid fa-magnifying-glass"></i> Requêtes</a>
+        <a href="/team"><i class="fa fa-users" aria-hidden="true"></i> Équipe</a>
+        <button class="mode-toggle" onload="checkLightMode()"> <span><i class="fa-solid fa-sun"></i></span></button>
+      </div>
+      </ul>
+  </div>
+
+  <div class="main">
+    <section class="content">
+      {% block content %}{% endblock %}
+    </section>
+  </div>
+
+  <div>
+    <footer>
+      <img src="{{ url_for('static', filename='Images/Logo.png') }}" alt="Logo.png"
+        style="width:50px; border-radius: 50%;">
+      <div><a href="https://media1.tenor.com/m/ZAMoMuQgf9UAAAAd/mapache-pedro.gif" target="_blank" rel="noopener noreferrer"
+        data-toggle="tooltip" style="color: white; text-decoration:none">©</a>
+      2024 Site web du Groupe 32 </div>
+    </footer>
+  </div>
+
+</body>
+
+<script>
+  const buttons = document.querySelectorAll('.mode-toggle')
+
+  buttons.forEach(button => {
+    button.addEventListener('click', function () {
+      document.body.classList.toggle('dark-mode')
+      document.querySelectorAll('.fa-sun').forEach(icon => icon.classList.toggle('fa-moon'))
+
+      if (document.body.classList.contains('dark-mode')) {
+        localStorage.setItem('lightMode', 'enabled')
+      } else {
+        localStorage.setItem('lightMode', 'disabled')
+      }
+    })
+  })
+
+  if (localStorage.getItem('lightMode') === 'enabled') {
+    document.body.classList.add('dark-mode')
+    document.querySelectorAll('.fa-sun').forEach(icon => icon.classList.add('fa-moon'))
+  }
+</script>
+
+</html>
+
+<!-- Ancienne icon requete : <i class="fa fa-road" aria-hidden="true"></i> -->

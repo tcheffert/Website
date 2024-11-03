@@ -1,0 +1,357 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Requêtes
+{% endblock %}
+
+{% block content %}
+<div class="center-requests">
+<h1>Requêtes</h1>
+<p>Bienvenue sur la page <b>Requêtes</b>!</p>
+<p>Ici, vous pouvez sélectionner une <i>ville</i>ainsi qu'une de ses <i>rues</i>pour voir le trafic au sein de celle-ci.
+</p>
+
+{% if not selected_city %}
+<div class="custom-select">
+  <form method="post" id="form1">
+    <select id="select1" name="city" action="/req" onchange="form1.submit()">
+      <option value="" selected disabled hidden>Vous pouvez choisir une ville</option>
+      {% for city in cities %}
+      <option value="{{ city.nom }}">{{ city.nom }}</option>
+      {% endfor %}
+    </select>
+  </form>
+</div>
+{% endif %}
+
+{% if selected_city %}
+
+<h2>Statistique pour la ville</h2>
+<div>
+  <div style="margin: 1rem;">
+    Pour choisir une autre ville: <a class="button-sub" style="text-decoration: none;" href="/requests">
+      <i class="fa fa-refresh" aria-hidden="true"></i> Changer de ville
+    </a>
+  </div>
+</div>
+
+<div class="custom-select">
+  <form method="post" id="form2">
+    <input hidden type="text" value="{{ selected_city }}" readonly name="city">
+    <select name="street" action="/req" onchange="form2.submit()">
+      <option value="" selected disabled hidden>Choix d'une rue dans la ville</option>
+      {% for street in city_streets %}
+      <option value="{{ street.rue_id }}">{{ street.nom }}</option>
+      {% endfor %}
+    </select>
+  </form>
+</div>
+
+<div style="width: 50%;">
+  <div>
+
+    <p>Statistiques de trafic à <b>{{ selected_city }}</b>.</p>
+
+    <table>
+      <thead>
+        <tr>
+          <td><a href="#" style="color: white;" data-toggle="tooltip" title="Pourcentage de camions dans la ville"><i
+                class="fa-solid fa-truck"></i></a></td>
+          <td><a href="#" style="color: white;" data-toggle="tooltip" title="Pourcentage de vélos dans la ville"><i
+                class="fa-solid fa-person-biking"></i></a></td>
+          <td><a href="#" style="color: white;" data-toggle="tooltip" title="Pourcentage de voitures dans la ville"><i
+                class="fa-solid fa-car"></i></a></td>
+          <td><a href="#" style="color: white;" data-toggle="tooltip" title="Pourcentage de piétons dans la ville"><i
+                class="fa-solid fa-person-walking"></i></a></td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>{{ trafic["lourd"] }}%</td>
+          <td>{{ trafic["velo"] }}%</td>
+          <td>{{ trafic["voiture"] }}%</td>
+          <td>{{ trafic["pieton"] }}%</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <br>
+  </div>
+  <div style="width: 120%;">
+    <canvas id="graph_pourcent" width="300" height="200"></canvas>
+    <script type="text/javascript">
+      let nbr1 = parseInt('{{ trafic["lourd"]|safe }}');
+      let nbr2 = parseInt('{{ trafic["velo"]|safe }}');
+      let nbr3 = parseInt('{{ trafic["voiture"]|safe }}');
+      let nbr4 = parseInt('{{ trafic["pieton"]|safe }}');
+
+      var ctx = document.getElementById('graph_pourcent').getContext('2d');
+      var myChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: ['Lourd [%]', 'Vélo [%]', 'Voiture [%]', 'Piéton [%]'],
+          datasets: [{
+            data: [nbr1, nbr2, nbr3, nbr4],
+            backgroundColor: ['#F16A70', '#B1D877', 'grey', '#8CDCDA']
+          }]
+        },
+        options: {
+          responsive: true,
+          title: {
+            display: true,
+            text: 'Pourcentage du trafic en fonction du véhicule dans cette ville'
+          }
+        }
+      });
+    </script>
+  </div>
+</div>
+
+<br>
+{% endif %}
+
+{% if selected_street %}
+
+<h2>Statistique pour la rue</h2>
+
+<div class="custom-select">
+  <form method="post" id="form3">
+    <input hidden type="text" value="{{ selected_city }}" readonly name="city">
+    <input hidden type="text" value="{{ selected_street }}" readonly name="street">
+    <select name="day" action="/req" onchange="form3.submit()">
+      <option value="" selected disabled hidden>Choix des jours de la semaine</option>
+      {% for day in range(0, 7) %}
+      <option value="{{ day }}">{{ ["Dimanche","Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"][day] }}
+      </option>
+      {% endfor %}
+      <option value="7">Tous les jours</option>
+    </select>
+  </form>
+</div>
+{% endif %}
+
+{% if selected_day %}
+
+<div>
+  <p> Voici dans le tableau suivant, le trafic dans "<B>{{name_rue}}</B>".</p>
+  {% if selected_day == "7" %}
+  <table>
+    <thead>
+      <tr>
+        <td><a href="#" style="color: white;" data-toggle="tooltip" title="Jour de la semaine"><i
+              class="fa-solid fa-calendar-day"></i></a></td>
+        <td><a href="#" style="color: white;" data-toggle="tooltip" title="Pourcentage de camions dans la rue"><i
+              class="fa-solid fa-truck"></i></a></td>
+        <td><a href="#" style="color: white;" data-toggle="tooltip" title="Pourcentage de vélos dans la rue"><i
+              class="fa-solid fa-person-biking"></i></a></td>
+        <td><a href="#" style="color: white;" data-toggle="tooltip" title="Pourcentage de voitures dans la rue"><i
+              class="fa-solid fa-car"></i></a></td>
+        <td><a href="#" style="color: white;" data-toggle="tooltip" title="Pourcentage de piétons dans la rue"><i
+              class="fa-solid fa-person-walking"></i></a></td>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Lundi</td>
+        <td>{{ street_trafic["1"]["lourd"] }}%</td>
+        <td>{{ street_trafic["1"]["velo"] }}%</td>
+        <td>{{ street_trafic["1"]["voiture"] }}%</td>
+        <td>{{ street_trafic["1"]["pieton"] }}%</td>
+      </tr>
+      <tr>
+        <td>Mardi</td>
+        <td>{{ street_trafic["2"]["lourd"] }}%</td>
+        <td>{{ street_trafic["2"]["velo"] }}%</td>
+        <td>{{ street_trafic["2"]["voiture"] }}%</td>
+        <td>{{ street_trafic["2"]["pieton"] }}%</td>
+      </tr>
+      <tr>
+        <td>Mercredi</td>
+        <td>{{ street_trafic["3"]["lourd"] }}%</td>
+        <td>{{ street_trafic["3"]["velo"] }}%</td>
+        <td>{{ street_trafic["3"]["voiture"] }}%</td>
+        <td>{{ street_trafic["3"]["pieton"] }}%</td>
+      </tr>
+      <tr>
+        <td>Jeudi</td>
+        <td>{{ street_trafic["4"]["lourd"] }}%</td>
+        <td>{{ street_trafic["4"]["velo"] }}%</td>
+        <td>{{ street_trafic["4"]["voiture"] }}%</td>
+        <td>{{ street_trafic["4"]["pieton"] }}%</td>
+      </tr>
+      <tr>
+        <td>Vendredi</td>
+        <td>{{ street_trafic["5"]["lourd"] }}%</td>
+        <td>{{ street_trafic["5"]["velo"] }}%</td>
+        <td>{{ street_trafic["5"]["voiture"] }}%</td>
+        <td>{{ street_trafic["5"]["pieton"] }}%</td>
+      </tr>
+      <tr>
+        <td>Samedi</td>
+        <td>{{ street_trafic["6"]["lourd"] }}%</td>
+        <td>{{ street_trafic["6"]["velo"] }}%</td>
+        <td>{{ street_trafic["6"]["voiture"] }}%</td>
+        <td>{{ street_trafic["6"]["pieton"] }}%</td>
+      </tr>
+      <tr>
+        <td>Dimanche</td>
+        <td>{{ street_trafic["0"]["lourd"] }}%</td>
+        <td>{{ street_trafic["0"]["velo"] }}%</td>
+        <td>{{ street_trafic["0"]["voiture"] }}%</td>
+        <td>{{ street_trafic["0"]["pieton"] }}%</td>
+      </tr>
+    </tbody>
+  </table>
+  <br>
+  <br>
+  {% else %}
+  <table>
+    <thead>
+      <tr>
+        <td><a href="#" style="color: white;" data-toggle="tooltip" title="Jour de la semaine"><i
+              class="fa-solid fa-calendar-day"></i></a></td>
+        <td><a href="#" style="color: white;" data-toggle="tooltip" title="Pourcentage de camions dans la rue"><i
+              class="fa-solid fa-truck"></i></a></td>
+        <td><a href="#" style="color: white;" data-toggle="tooltip" title="Pourcentage de vélos dans la rue"><i
+              class="fa-solid fa-person-biking"></i></a></td>
+        <td><a href="#" style="color: white;" data-toggle="tooltip" title="Pourcentage de voitures dans la rue"><i
+              class="fa-solid fa-car"></i></a></td>
+        <td><a href="#" style="color: white;" data-toggle="tooltip" title="Pourcentage de piétons dans la rue"><i
+              class="fa-solid fa-person-walking"></i></a></td>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>{{ ["Dimanche","Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"][selected_day|int] }}</td>
+        <td>{{ street_trafic[selected_day]["lourd"] }}%</td>
+        <td>{{ street_trafic[selected_day]["velo"] }}%</td>
+        <td>{{ street_trafic[selected_day]["voiture"] }}%</td>
+        <td>{{ street_trafic[selected_day]["pieton"] }}%</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div style="width: 60%;">
+  <canvas id="graph_pourcent2" width="300" height="200"></canvas>
+  <script type="text/javascript">
+    let nbr01 = parseInt('{{ street_trafic[selected_day]["lourd"] }}');
+    let nbr02 = parseInt('{{ street_trafic[selected_day]["velo"] }}');
+    let nbr03 = parseInt('{{ street_trafic[selected_day]["voiture"] }}');
+    let nbr04 = parseInt('{{ street_trafic[selected_day]["pieton"] }}');
+
+    var ctx = document.getElementById('graph_pourcent2').getContext('2d');
+    var myChart = new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: ['Lourd [%]', 'Vélo [%]', 'Voiture [%]', 'Piéton [%]'],
+        datasets: [{
+          data: [nbr01, nbr02, nbr03, nbr04],
+          backgroundColor: ['#F16A70', '#B1D877', 'grey', '#8CDCDA']
+        }]
+      },
+      options: {
+        responsive: true,
+        title: {
+          display: true,
+          text: 'Pourcentage du trafic en fonction du véhicule dans cette rue'
+        }
+      }
+    });
+  </script>
+</div>
+<br>
+<br>
+{% endif %}
+{% endif %}
+
+
+{% if selected_street %}
+<h2>Nombre de véhicules dans la rue pendant une période</h2>
+<p>Choissiez une période et le nombre de véhicules pendant celle-ci sera affiché.</p>
+<form method="post" id="form4">
+  <input hidden type="text" value="{{ selected_city }}" readonly name="city">
+  <input hidden type="text" value="{{ selected_street }}" readonly name="street">
+  <label>Date de début :</label>
+  <input type="date" max="{{ maximum_day }}" min="{{ minimum_day }}" name="min_date" value="{{ min_date }}" 
+  placeholder="YYYY-MM-DD" required style="padding: 5px; border-radius: 5px; border: 1px solid #ccc; margin-bottom: 10px; font-family: Arial;">
+  <br>
+  <label>Date de fin :</label>
+  <input type="date" max="{{ maximum_day }}" min="{{ minimum_day }}" name="max_date" value="{{ max_date }}" onchange="form4.submit()"
+  placeholder="YYYY-MM-DD" required style="padding: 5px; border-radius: 5px; border: 1px solid #ccc; margin-bottom: 10px; font-family: Arial;">
+</form>
+{% endif %}
+{% if max_date %}
+<div style="width: 75%;">
+  <div>
+    <table>
+      <thead>
+        <tr>
+          <td><a href="#" style="color: white;" data-toggle="tooltip"
+              title="Nombre de camions dans la ville pendant la période"><i class="fa-solid fa-truck"></i></a></td>
+          <td><a href="#" style="color: white;" data-toggle="tooltip"
+              title="Nombre de vélos dans la ville pendant la période"><i class="fa-solid fa-person-biking"></i></a>
+          </td>
+          <td><a href="#" style="color: white;" data-toggle="tooltip"
+              title="Nombre de voitures dans la ville pendant la période"><i class="fa-solid fa-car"></i></a></td>
+          <td><a href="#" style="color: white;" data-toggle="tooltip"
+              title="Nombre de piétons dans la ville pendant la période"><i class="fa-solid fa-person-walking"></i></a>
+          </td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>{{ street_trafic_for_duration[0]["lourd"] }}</td>
+          <td>{{ street_trafic_for_duration[0]["velo"] }}</td>
+          <td>{{ street_trafic_for_duration[0]["voiture"] }}</td>
+          <td>{{ street_trafic_for_duration[0]["pieton"] }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <br>
+
+  <div style="width: 80%;">
+    <canvas id="graph_bar" width="500" height="300"></canvas>
+    <script type="text/javascript">
+      let nbr001 = parseInt('{{ street_trafic_for_duration[0]["lourd"] }}');
+      let nbr002 = parseInt('{{ street_trafic_for_duration[0]["velo"] }}');
+      let nbr003 = parseInt('{{ street_trafic_for_duration[0]["voiture"] }}');
+      let nbr004 = parseInt('{{ street_trafic_for_duration[0]["pieton"] }}');
+
+      var ctx = document.getElementById('graph_bar').getContext('2d');
+      var myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Lourds', 'Vélos', 'Voitures', 'Piétons'],
+          datasets: [{
+            data: [nbr001, nbr002, nbr003, nbr004],
+            backgroundColor: ['#F16A70', '#B1D877', 'grey', '#8CDCDA']
+          }]
+        },
+        options: {
+          responsive: true,
+          title: {
+            display: true,
+            text: 'Nombre de véhicules en fonction de leur type entre {{ min_date }} et {{ max_date }}'
+          }
+        },
+        scales: {
+          yAxes: [{
+            display: true,
+            ticks: {
+              beginAtZero: true
+            }
+          }]
+        }
+      });
+    </script>
+  </div>
+</div>
+{% endif %}
+
+<br>
+<br>
+</div>
+{% endblock %}

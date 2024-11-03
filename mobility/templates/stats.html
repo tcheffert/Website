@@ -1,0 +1,235 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Statistiques
+{% endblock %}
+
+{% block content %}
+<div class="center-stats">
+<h1>Statistiques</h1>
+
+<h2>Statistiques de vélos par ville</h2>
+
+<div class="splitscreen" style="width: 50%;">
+    <div class="left">
+        <table>
+            <thead>
+                <tr>
+                    <th>Ville</th>
+                    <th>Pourcentage de vélo</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for city, percentage in most_cyclables %}
+                <tr>
+                    <td>{{ city }}</td>
+                    <td>{{ percentage }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="right">
+        <canvas id="graphique" width="600" height="400"></canvas>
+        <script type="text/javascript">
+            //---Function to have te correct format for the lists---//
+            function createLstJs(str_lst) {
+                var new_str = str_lst.substring(1, str_lst.length - 1);
+                var res = new_str.split(",");
+                return res;
+            }
+            //---Warp the variables so that there'll be no issue later---//
+            var list_villes = createLstJs("{{lst_cities|safe}}");
+            var list_pourcents = createLstJs("{{lst_percent|safe}}");
+            //---------------------------------------------------------//               
+
+            var ctx = document.getElementById('graphique').getContext('2d');
+            var myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: list_villes,
+                    datasets: [{
+                        label: 'vélo par personne',
+                        data: list_pourcents,
+                        backgroundColor: ['#273ea5', '#3d51ae', '#5265b7', '#6878c0', '#7d8bc9', '#939fd2', '#a9b2db', '#bec5e4', '#d4d8ed'],
+                        borderColor: 'darkblue',
+                        borderWidth: 1.5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    title: {
+                        display: true,
+                        text: 'Nombre de vélo par personne et par ville'
+                    }
+                },
+            });
+        </script>
+    </div>
+</div>
+
+<h2>Nombre de rues pour chaque ville</h2>
+
+<div class="splitscreen" style="width: 50%;">
+    <div class="left">
+        <table>
+            <thead>
+                <tr>
+                    <th>Ville</th>
+                    <th>Nombre de rues</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in city_streets %}
+                <tr>
+                    <td>{{ row[0] }}</td>
+                    <td>{{ row[1] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="right">
+        <canvas id="graphiqueNbrRues" width="600" height="400"></canvas>
+        <script>
+            //---Warp the variables so that there is no issue later---
+            var labels_graph2 = createLstJs("{{lst_villes_graph2|safe}}");
+            var data_graph2 = createLstJs("{{nbr_rues_ville|safe}}");
+            //---------------------------------------------------------// 
+            var ctx = document.getElementById('graphiqueNbrRues').getContext('2d');
+            var myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels_graph2,
+                    datasets: [{
+                        label: 'Nombre de rues dans la ville',
+                        data: data_graph2,
+                        backgroundColor: ['#ccdb6', '#a8af98', '#43ae9e', '#e7b24f', '#ed6e1b', '#e6d8cf', '#d7c5ad', '#a8afbb', '#7a8b9f'],
+                        borderColor: 'grey',
+                        borderWidth: 1.5
+                    }],
+                },
+                options: {
+                    responsive: true,
+                    title: {
+                        display: true,
+                        text: 'Nombre de rues par ville'
+                    },
+                    scales: {
+                        yAxes: [{
+                            display: true,
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }]
+                    }
+                },
+            });
+        </script>
+    </div>
+</div>
+
+<h2>Nombre de villes par province</h2>
+
+<div class="splitscreen" style="width: 50%;">
+    <div class="left">
+        <table>
+            <thead>
+                <tr>
+                    <th>Province</th>
+                    <th>Nombre de villes</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for city in villes_provinces %}
+                <tr>
+                    <td>{{ city }}</td>
+                    <td>{{ villes_provinces[city] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="right" style="width: 110%;">
+        <canvas id="graphiqueProvince" width="600" height="400"></canvas>
+        <script>
+            //---Warp the variables so that there is no issue later---
+            var labels_graph3 = createLstJs("{{lst_provinces|safe}}");
+            var data_graph3 = createLstJs("{{nbr_villes_provinces|safe}}");
+            //---------------------------------------------------------// 
+            var ctx = document.getElementById('graphiqueProvince').getContext('2d');
+            var myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels_graph3,
+                    datasets: [{
+                        label: 'Nombre de villes dans la province',
+                        data: data_graph3,
+                        backgroundColor: ['#003f5c', '#374c80', '#7a5195', '#bc5090', '#ef5675', '#ff764a', '#ffa600'],
+                        borderColor: 'grey',
+                        borderWidth: 1.5
+                    }],
+                },
+                options: {
+                    responsive: true,
+                    title: {
+                        display: true,
+                        text: 'Nombre de villes par province'
+                    },
+                    scales: {
+                        yAxes: [{
+                            display: true,
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }]
+                    }
+                },
+            });
+        </script>
+    </div>
+</div>
+
+
+<div class="element canva">
+    <h2>Vélos par jours de pleine lune</h2>
+    <p>Ratio vélos jours de pleine lune / en temps normal : {{ cyclists_per_moon_phase["ratio"] }}%</p>
+</div>
+
+<h2>Nombre d'entrées par table</h2>
+
+<table>
+    <thead>
+        <tr>
+            <th>Table</th>
+            <th>Nombre d'entrées</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Villes</td>
+            <td>{{ citiesNumber }}</td>
+        </tr>
+        <tr>
+            <td>Rues</td>
+            <td>{{ streetsNumber }}</td>
+        </tr>
+        <tr>
+            <td>Vitesses</td>
+            <td>{{ speedNumber }}</td>
+        </tr>
+        <tr>
+            <td>Trafics</td>
+            <td>{{ traficNumber }}</td>
+        </tr>
+    </tbody>
+</table>
+
+<br>
+<br>
+
+</div>
+{% endblock %}

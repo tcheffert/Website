@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}
+Accueil
+{% endblock %}
+
+{% block content %}
+<div class="center-homepage">
+  <h1 >Page d'accueil</h1>
+  <p style="font-size: 30px;" >Bienvenu sur le site du <B>groupe 32</B> pour le cours de <I>Projet 2 LINFO1002 !</I></p>
+  <p>Le but de ce site est d'afficher différentes statistiques de trafic en Belgique. Nous avons pu obtenir toutes ces
+    données grâce aux capteurs <a href="https://www.telraam.net" target="_blank" rel="noopener noreferrer"> Telraam</a> 
+    placés dans pluieurs villes. Toutes les statistiques détaillées, ainsi que des graphiques illustratifs,
+    sont repris dans la <a href="/stats">page</a> correspondante.
+  </p>
+  <img src="{{ url_for('static', filename='Images/mobility.jpg') }}" alt="mobility" width="600" >
+</div>
+{% endblock %}
